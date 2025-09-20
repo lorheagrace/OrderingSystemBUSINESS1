@@ -1017,9 +1017,13 @@ function previewImage(input, previewId) {
                 overlay.classList.remove("d-none");
             }
 
-            // mark container so placeholder hides
+            // ✅ hide placeholder when image is uploaded
             const area = preview.closest(".upload-area");
             if (area) {
+                const placeholder = area.querySelector(".upload-placeholder");
+                if (placeholder) {
+                    placeholder.style.display = "none";
+                }
                 area.classList.add("has-image");
             }
         };
@@ -1029,32 +1033,41 @@ function previewImage(input, previewId) {
 
 
 
+
 function removeImage(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
-    const overlay = document.getElementById('overlay_' + previewId.split('_')[1]);
-    const uploadArea = document.getElementById('upload_area_' + previewId.split('_')[1]);
 
-    // Clear input
-    input.value = "";
+    // Clear input value
+    if (input) input.value = "";
 
-    // Hide preview
-    preview.src = "";
-    preview.classList.add("d-none");
+    // Hide preview image
+    if (preview) {
+        preview.src = "";
+        preview.classList.add("d-none");
+    }
 
-    // Hide overlay
+    // Find overlay container (works for normal and _controls IDs)
+    let base = previewId.replace("preview", "overlay");
+    const overlay =
+        document.getElementById(base) ||
+        document.getElementById(base + "_controls");
     if (overlay) overlay.classList.add("d-none");
 
     // ✅ Show placeholder back
-    const placeholder = uploadArea.querySelector(".upload-placeholder");
-    if (placeholder) {
-        placeholder.style.display = "block";   // make it visible again
+    const uploadArea = preview ? preview.closest(".upload-area") : null;
+    if (uploadArea) {
+        const placeholder = uploadArea.querySelector(".upload-placeholder");
+        if (placeholder) {
+            placeholder.style.display = "block";
+        }
     }
 
-    // ✅ Also mark for deletion if you added hidden checkboxes
+    // ✅ Mark for deletion if hidden delete flag exists
     const removeCheckbox = document.getElementById("remove_" + inputId);
     if (removeCheckbox) removeCheckbox.checked = true;
 }
+
 
 // Show alert/toast when image background is selected
 function showImageRequiredAlert(prefix) {
