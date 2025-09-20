@@ -1016,26 +1016,77 @@ function previewImage(input, previewId) {
     const file = input.files[0];
     const preview = document.getElementById(previewId);
 
-    // derive overlay id (supports _controls)
-    let base = previewId.replace("preview", "overlay");
-    const overlay =
-        document.getElementById(base) ||
-        document.getElementById(base + "_controls");
+    // Derive overlay/controls ID based on previewId
+    let overlayId;
+    if (previewId === 'register_overlay_preview') {
+        overlayId = 'register_overlay_controls';
+    } else if (previewId.startsWith('preview_')) {
+        // Homepage images (preview_1, preview_2, etc.)
+        const num = previewId.split('_')[1];
+        overlayId = `overlay_${num}`;
+    } else {
+        // General, login, etc.
+        overlayId = previewId.replace('preview', 'overlay');
+    }
+    
+    const overlay = document.getElementById(overlayId);
+    const uploadArea = preview.closest('.upload-area');
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            preview.src = e.target.result;
-            preview.classList.remove("d-none"); // show <img>
+            // Special handling for homepage images that need cropping
+            if (previewId.startsWith("preview_")) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    const targetWidth = 900;
+                    const targetHeight = 400;
 
-            if (overlay) {
-                overlay.classList.remove("d-none");
-            }
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
 
-            // mark container so placeholder hides
-            const area = preview.closest(".upload-area");
-            if (area) {
-                area.classList.add("has-image");
+                    let scale = Math.max(targetWidth / img.width, targetHeight / img.height);
+                    let x = (targetWidth / 2) - (img.width / 2) * scale;
+                    let y = (targetHeight / 2) - (img.height / 2) * scale;
+
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+                    preview.src = canvas.toDataURL("image/jpeg");
+                    preview.classList.remove("d-none");
+                    
+                    if (overlay) {
+                        overlay.classList.remove("d-none");
+                    }
+
+                    // Hide placeholder
+                    if (uploadArea) {
+                        const placeholder = uploadArea.querySelector('.upload-placeholder');
+                        if (placeholder) {
+                            placeholder.style.display = 'none';
+                        }
+                        uploadArea.classList.add("has-image");
+                    }
+                };
+                img.src = e.target.result;
+            } else {
+                // For all other images (general, login, register overlay), show as-is
+                preview.src = e.target.result;
+                preview.classList.remove("d-none");
+                
+                if (overlay) {
+                    overlay.classList.remove("d-none");
+                }
+
+                // Hide placeholder
+                if (uploadArea) {
+                    const placeholder = uploadArea.querySelector('.upload-placeholder');
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                    uploadArea.classList.add("has-image");
+                }
             }
         };
         reader.readAsDataURL(file);
@@ -1047,28 +1098,53 @@ function previewImage(input, previewId) {
 function removeImage(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
-    const overlay = document.getElementById('overlay_' + previewId.split('_')[1]);
-    const uploadArea = document.getElementById('upload_area_' + previewId.split('_')[1]);
+    
+    // Derive overlay/controls ID based on previewId
+    let overlayId;
+    if (previewId === 'register_overlay_preview') {
+        overlayId = 'register_overlay_controls';
+    } else if (previewId.startsWith('preview_')) {
+        // Homepage images (preview_1, preview_2, etc.)
+        const num = previewId.split('_')[1];
+        overlayId = `overlay_${num}`;
+    } else {
+        // General, login, etc.
+        overlayId = previewId.replace('preview', 'overlay');
+    }
+    
+    const overlay = document.getElementById(overlayId);
+    const uploadArea = preview.closest('.upload-area');
 
     // Clear input
-    input.value = "";
-
-    // Hide preview
-    preview.src = "";
-    preview.classList.add("d-none");
-
-    // Hide overlay
-    if (overlay) overlay.classList.add("d-none");
-
-    // ✅ Show placeholder back
-    const placeholder = uploadArea.querySelector(".upload-placeholder");
-    if (placeholder) {
-        placeholder.style.display = "block";   // make it visible again
+    if (input) {
+        input.value = "";
     }
 
-    // ✅ Also mark for deletion if you added hidden checkboxes
+    // Hide preview
+    if (preview) {
+        preview.src = "";
+        preview.classList.add("d-none");
+    }
+
+    // Hide overlay/controls
+    if (overlay) {
+        overlay.classList.add("d-none");
+    }
+
+    // Show placeholder back
+    if (uploadArea) {
+        const placeholder = uploadArea.querySelector(".upload-placeholder");
+        if (placeholder) {
+            placeholder.style.display = "block";
+        }
+        uploadArea.classList.remove("has-image");
+    }
+
+    // Mark for deletion if there's a hidden checkbox
     const removeCheckbox = document.getElementById("remove_" + inputId);
-    if (removeCheckbox) removeCheckbox.checked = true;
+    if (removeCheckbox) {
+        removeCheckbox.checked = true;
+    }
 }
 
 // Show alert/toast when image background is selected
