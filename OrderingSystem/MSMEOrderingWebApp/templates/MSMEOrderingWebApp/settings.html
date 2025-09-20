@@ -196,9 +196,8 @@
 
         .upload-placeholder {
             text-align: center;
-            color: #6c757d; /* fallback gray */
+            color: var(--text-secondary);
             transition: all 0.3s ease;
-            pointer-events: none; /* so clicks pass through to file input */
         }
 
         .upload-placeholder i {
@@ -1494,23 +1493,23 @@
                         
                         <!-- Square Wrapper Ensures 1:1 Aspect Ratio -->
                         <div class="square-wrapper">
-                            <div class="logo-upload-area" id="logoUploadArea">
+                            <div class="logo-upload-area">
                                 {% if business.logo %}
                                     <img id="logoPreview" src="{{ business.logo.url }}" class="logo-preview">
                                 {% else %}
                                     <img id="logoPreview" src="" class="logo-preview" style="display:none;">
                                 {% endif %}
-                        
-                                <!-- Placeholder stays until a logo is uploaded -->
-                                <div class="upload-placeholder" id="uploadPlaceholder"
+
+                                <div class="upload-placeholder" id="uploadPlaceholder" style="{% if business.logo %}display: none;{% endif %}">
                                     <i class="fas fa-cloud-upload-alt"></i>
-                                    <h4>CLICK TO UPLOAD LOGO</h4>
-                                    <p>PNG, JPG up to 2MB</p>
+                                    <h4>Upload Logo</h4>
+                                    <p>Drag & drop or click to browse</p>
+                                    <small>PNG, JPG up to 2MB</small>
                                 </div>
-                        
-                                <input type="file" id="logoInput" name="logo"
-                                       accept="image/png,image/jpeg"
-                                       class="logo-file-input editable-field" disabled>
+
+
+                                <!-- Make this invisible but clickable -->
+                                <input type="file" id="logoInput" name="logo" accept="image/png,image/jpeg" class="logo-file-input editable-field" disabled>
                             </div>
                         </div>
 
@@ -1790,34 +1789,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const settingsForm = document.getElementById("settingsForm");
     const editButton = document.getElementById("editDetails");
     const saveButton = document.getElementById("saveDetails");
-    const logoUploadArea = document.getElementById("logoUploadArea");
-
-    // Clicking the area triggers file input
-    logoUploadArea.addEventListener("click", function () {
-        if (!logoInput.disabled) {
-            logoInput.click();
-        }
-    });
-
-    // Preview selected logo
-    logoInput.addEventListener("change", function () {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                logoPreview.src = e.target.result;
-                logoPreview.style.display = "block";
-                uploadPlaceholder.style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // No file selected -> show placeholder again
-            logoPreview.style.display = "none";
-            uploadPlaceholder.style.display = "block";
-        }
-    });
-
-
+    
     // Track if we're currently restoring to prevent conflicts
     let isRestoring = false;
     
