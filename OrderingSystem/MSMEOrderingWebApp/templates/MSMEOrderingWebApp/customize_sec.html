@@ -1061,39 +1061,42 @@ function previewImage(input, previewId) {
 
                 ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
                 preview.src = canvas.toDataURL("image/jpeg");
+                
+                // Show preview and hide placeholder
+                showImagePreview(preview, overlay, uploadArea);
             };
             img.src = e.target.result;
         } else {
             // For all other images (including register overlay), show as-is
             preview.src = e.target.result;
+            
+            // Show preview and hide placeholder
+            showImagePreview(preview, overlay, uploadArea);
         }
-
-        // Show the preview image
-        preview.classList.remove("d-none");
-        preview.style.display = "block";
-
-        // Hide the placeholder
-        if (placeholder) {
-            placeholder.style.display = "none";
-        }
-
-        // Show overlay controls
-        if (overlay) {
-            overlay.classList.remove("d-none");
-            overlay.style.display = "flex";
-        }
-
-        // Add has-image class to upload area
-        if (uploadArea) {
-            uploadArea.classList.add("has-image");
-        }
-
-        console.log(`Successfully previewed image for: ${previewId}`);
     };
 
     reader.readAsDataURL(file);
 }
 
+// Helper function to handle showing image preview consistently
+function showImagePreview(preview, overlay, uploadArea) {
+    // Show the preview image
+    preview.classList.remove("d-none");
+    preview.style.display = "block";
+
+    // Show overlay controls
+    if (overlay) {
+        overlay.classList.remove("d-none");
+    }
+
+    // Add has-image class to upload area (this will hide placeholder via CSS)
+    if (uploadArea) {
+        uploadArea.classList.add("has-image");
+    }
+
+    console.log(`Successfully previewed image for: ${preview.id}`);
+}
+    
 function removeImage(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
