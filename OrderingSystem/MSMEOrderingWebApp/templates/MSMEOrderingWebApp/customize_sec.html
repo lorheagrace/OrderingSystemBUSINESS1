@@ -552,25 +552,31 @@
 
                                                     <div class="upload-area" id="register_overlay_upload_area">
                                                         {% if customization.register_background_image %}
-                                                            <img
-                                                                id="register_overlay_preview"
-                                                                src="{{ customization.register_background_image.url }}"
-                                                                class="preview-image"
-                                                                alt="Register Overlay Background"
-                                                            >
-                                                            <div class="image-overlay" id="register_overlay_controls">
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-light me-2"
-                                                                    onclick="event.stopPropagation(); document.getElementById('register_background_image').click()"
-                                                                >
+                                                            <img id="register_overlay_preview" src="{{ customization.register_background_image.url }}" class="preview-image" alt="Register Overlay">
+                                                            <div class="image-overlay" id="register_overlay">
+                                                                <button type="button" class="btn btn-sm btn-light me-2"
+                                                                        onclick="event.stopPropagation(); document.getElementById('register_background_image').click()">
                                                                     <i class="fas fa-edit"></i> Change
                                                                 </button>
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-danger"
-                                                                    onclick="event.stopPropagation(); removeImage('register_background_image', 'register_overlay_preview')"
-                                                                >
+                                                                <button type="button" class="btn btn-sm btn-danger"
+                                                                        onclick="event.stopPropagation(); removeImage('register_background_image', 'register_overlay_preview')">
+                                                                    <i class="fas fa-trash"></i> Remove
+                                                                </button>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="upload-placeholder">
+                                                                <i class="fas fa-cloud-upload-alt mb-2" style="font-size: 2rem; color: #6c757d;"></i>
+                                                                <p class="mb-1">Click to upload image</p>
+                                                                <small class="text-muted">Recommended: Full HD</small>
+                                                            </div>
+                                                            <img id="register_overlay_preview" class="preview-image d-none" alt="Preview">
+                                                            <div class="image-overlay d-none" id="register_overlay">
+                                                                <button type="button" class="btn btn-sm btn-light me-2"
+                                                                        onclick="event.stopPropagation(); document.getElementById('register_background_image').click()">
+                                                                    <i class="fas fa-edit"></i> Change
+                                                                </button>
+                                                                <button type="button" class="btn btn-sm btn-danger"
+                                                                        onclick="event.stopPropagation(); removeImage('register_background_image', 'register_overlay_preview')">
                                                                     <i class="fas fa-trash"></i> Remove
                                                                 </button>
                                                             </div>
@@ -1016,32 +1022,31 @@ function previewImage(input, previewId) {
     const file = input.files[0];
     const preview = document.getElementById(previewId);
 
-    // handle overlay controls too
-    let overlayId = previewId.replace("preview", "overlay_controls");
-    const overlay = document.getElementById(overlayId);
+    // derive overlay id (supports _controls)
+    let base = previewId.replace("preview", "overlay");
+    const overlay =
+        document.getElementById(base) ||
+        document.getElementById(base + "_controls");
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
             preview.src = e.target.result;
-            preview.classList.remove("d-none");
+            preview.classList.remove("d-none"); // show <img>
 
             if (overlay) {
                 overlay.classList.remove("d-none");
             }
 
+            // mark container so placeholder hides
             const area = preview.closest(".upload-area");
             if (area) {
                 area.classList.add("has-image");
-                const placeholder = area.querySelector(".upload-placeholder");
-                if (placeholder) placeholder.style.display = "none";
             }
         };
         reader.readAsDataURL(file);
     }
 }
-
-
 
 
 
