@@ -1014,137 +1014,146 @@ function showFileName(input) {
 
 function previewImage(input, previewId) {
     const file = input.files[0];
-    const preview = document.getElementById(previewId);
+    if (!file) return;
 
-    // Derive overlay/controls ID based on previewId
+    const preview = document.getElementById(previewId);
+    if (!preview) {
+        console.error(`Preview element not found: ${previewId}`);
+        return;
+    }
+
+    // Find the upload area and placeholder
+    const uploadArea = preview.closest('.upload-area');
+    const placeholder = uploadArea ? uploadArea.querySelector('.upload-placeholder') : null;
+
+    // Determine overlay/controls element ID
     let overlayId;
     if (previewId === 'register_overlay_preview') {
         overlayId = 'register_overlay_controls';
     } else if (previewId.startsWith('preview_')) {
-        // Homepage images (preview_1, preview_2, etc.)
+        // Homepage images: preview_1 -> overlay_1
         const num = previewId.split('_')[1];
         overlayId = `overlay_${num}`;
     } else {
-        // General, login, etc.
+        // General/login: general_preview -> general_overlay
         overlayId = previewId.replace('preview', 'overlay');
     }
     
     const overlay = document.getElementById(overlayId);
-    const uploadArea = preview.closest('.upload-area');
 
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            // Special handling for homepage images that need cropping
-            if (previewId.startsWith("preview_")) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    const targetWidth = 900;
-                    const targetHeight = 400;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // For homepage images, apply cropping
+        if (previewId.startsWith("preview_")) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const targetWidth = 900;
+                const targetHeight = 400;
 
-                    canvas.width = targetWidth;
-                    canvas.height = targetHeight;
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
 
-                    let scale = Math.max(targetWidth / img.width, targetHeight / img.height);
-                    let x = (targetWidth / 2) - (img.width / 2) * scale;
-                    let y = (targetHeight / 2) - (img.height / 2) * scale;
+                let scale = Math.max(targetWidth / img.width, targetHeight / img.height);
+                let x = (targetWidth / 2) - (img.width / 2) * scale;
+                let y = (targetHeight / 2) - (img.height / 2) * scale;
 
-                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                preview.src = canvas.toDataURL("image/jpeg");
+            };
+            img.src = e.target.result;
+        } else {
+            // For all other images (including register overlay), show as-is
+            preview.src = e.target.result;
+        }
 
-                    preview.src = canvas.toDataURL("image/jpeg");
-                    preview.classList.remove("d-none");
-                    
-                    if (overlay) {
-                        overlay.classList.remove("d-none");
-                    }
+        // Show the preview image
+        preview.classList.remove("d-none");
+        preview.style.display = "block";
 
-                    // Hide placeholder
-                    if (uploadArea) {
-                        const placeholder = uploadArea.querySelector('.upload-placeholder');
-                        if (placeholder) {
-                            placeholder.style.display = 'none';
-                        }
-                        uploadArea.classList.add("has-image");
-                    }
-                };
-                img.src = e.target.result;
-            } else {
-                // For all other images (general, login, register overlay), show as-is
-                preview.src = e.target.result;
-                preview.classList.remove("d-none");
-                
-                if (overlay) {
-                    overlay.classList.remove("d-none");
-                }
+        // Hide the placeholder
+        if (placeholder) {
+            placeholder.style.display = "none";
+        }
 
-                // Hide placeholder
-                if (uploadArea) {
-                    const placeholder = uploadArea.querySelector('.upload-placeholder');
-                    if (placeholder) {
-                        placeholder.style.display = 'none';
-                    }
-                    uploadArea.classList.add("has-image");
-                }
-            }
-        };
-        reader.readAsDataURL(file);
-    }
+        // Show overlay controls
+        if (overlay) {
+            overlay.classList.remove("d-none");
+            overlay.style.display = "flex";
+        }
+
+        // Add has-image class to upload area
+        if (uploadArea) {
+            uploadArea.classList.add("has-image");
+        }
+
+        console.log(`Successfully previewed image for: ${previewId}`);
+    };
+
+    reader.readAsDataURL(file);
 }
-
-
 
 function removeImage(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
     
-    // Derive overlay/controls ID based on previewId
+    if (!preview) {
+        console.error(`Preview element not found: ${previewId}`);
+        return;
+    }
+
+    const uploadArea = preview.closest('.upload-area');
+    const placeholder = uploadArea ? uploadArea.querySelector('.upload-placeholder') : null;
+
+    // Determine overlay/controls element ID
     let overlayId;
     if (previewId === 'register_overlay_preview') {
         overlayId = 'register_overlay_controls';
     } else if (previewId.startsWith('preview_')) {
-        // Homepage images (preview_1, preview_2, etc.)
+        // Homepage images: preview_1 -> overlay_1
         const num = previewId.split('_')[1];
         overlayId = `overlay_${num}`;
     } else {
-        // General, login, etc.
+        // General/login: general_preview -> general_overlay
         overlayId = previewId.replace('preview', 'overlay');
     }
     
     const overlay = document.getElementById(overlayId);
-    const uploadArea = preview.closest('.upload-area');
 
-    // Clear input
+    // Clear the file input
     if (input) {
         input.value = "";
     }
 
-    // Hide preview
-    if (preview) {
-        preview.src = "";
-        preview.classList.add("d-none");
-    }
+    // Hide and clear the preview image
+    preview.src = "";
+    preview.classList.add("d-none");
+    preview.style.display = "none";
 
-    // Hide overlay/controls
+    // Hide the overlay controls
     if (overlay) {
         overlay.classList.add("d-none");
+        overlay.style.display = "none";
     }
 
-    // Show placeholder back
+    // Show the placeholder again
+    if (placeholder) {
+        placeholder.style.display = "block";
+    }
+
+    // Remove has-image class from upload area
     if (uploadArea) {
-        const placeholder = uploadArea.querySelector(".upload-placeholder");
-        if (placeholder) {
-            placeholder.style.display = "block";
-        }
         uploadArea.classList.remove("has-image");
     }
 
-    // Mark for deletion if there's a hidden checkbox
-    const removeCheckbox = document.getElementById("remove_" + inputId);
+    // Mark for deletion if there's a removal checkbox
+    const removeCheckbox = document.getElementById(`remove_${inputId}`);
     if (removeCheckbox) {
         removeCheckbox.checked = true;
     }
+
+    console.log(`Successfully removed image for: ${previewId}`);
 }
 
 // Show alert/toast when image background is selected
