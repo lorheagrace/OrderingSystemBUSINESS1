@@ -196,8 +196,9 @@
 
         .upload-placeholder {
             text-align: center;
-            color: var(--text-secondary);
+            color: #6c757d; /* fallback gray */
             transition: all 0.3s ease;
+            pointer-events: none; /* so clicks pass through to file input */
         }
 
         .upload-placeholder i {
