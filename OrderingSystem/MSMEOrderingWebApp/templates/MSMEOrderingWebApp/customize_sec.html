@@ -529,16 +529,15 @@
                                             </div>
 
                                             <!-- Background Image Overlay Section -->
-                                            <!-- Background Image Overlay Section -->
                                             <div class="mt-4 pt-3 border-top">
                                                 <h6>Background Image Overlay</h6>
                                                 <p class="text-muted small">Add an image that will be overlaid on top of your background</p>
-                                            
-                                                <div class="image-upload-container" onclick="document.getElementById('register_overlay_image').click()">
+
+                                                <div class="image-upload-container" onclick="document.getElementById('register_background_image').click()">
                                                     <input
                                                         type="file"
-                                                        id="register_overlay_image"
-                                                        name="register_overlay_image"
+                                                        id="register_background_image"
+                                                        name="register_background_image"
                                                         accept="image/*"
                                                         class="d-none"
                                                         onchange="previewImage(this, 'register_overlay_preview')"
@@ -546,26 +545,32 @@
                                                     <!-- hidden delete flag -->
                                                     <input
                                                         type="checkbox"
-                                                        id="remove_register_overlay_image"
-                                                        name="remove_register_overlay_image"
+                                                        id="remove_register_background_image"
+                                                        name="remove_register_background_image"
                                                         class="d-none"
                                                     >
-                                            
+
                                                     <div class="upload-area" id="register_overlay_upload_area">
-                                                        {% if customization.register_overlay_image %}
+                                                        {% if customization.register_background_image %}
                                                             <img
                                                                 id="register_overlay_preview"
-                                                                src="{{ customization.register_overlay_image.url }}"
+                                                                src="{{ customization.register_background_image.url }}"
                                                                 class="preview-image"
                                                                 alt="Register Overlay Background"
                                                             >
                                                             <div class="image-overlay" id="register_overlay_controls">
-                                                                <button type="button" class="btn btn-sm btn-light me-2"
-                                                                    onclick="event.stopPropagation(); document.getElementById('register_overlay_image').click()">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm btn-light me-2"
+                                                                    onclick="event.stopPropagation(); document.getElementById('register_background_image').click()"
+                                                                >
                                                                     <i class="fas fa-edit"></i> Change
                                                                 </button>
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                    onclick="event.stopPropagation(); removeImage('register_overlay_image', 'register_overlay_preview')">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm btn-danger"
+                                                                    onclick="event.stopPropagation(); removeImage('register_background_image', 'register_overlay_preview')"
+                                                                >
                                                                     <i class="fas fa-trash"></i> Remove
                                                                 </button>
                                                             </div>
@@ -575,18 +580,28 @@
                                                                 <p class="mb-1">Click to upload image</p>
                                                                 <small class="text-muted">Recommended: Transparent PNG</small>
                                                             </div>
-                                            
+
                                                             <!-- Preview image (hidden until upload) -->
-                                                            <img id="register_overlay_preview" class="preview-image d-none" alt="Register Overlay Background">
-                                            
-                                                            <!-- Overlay controls -->
+                                                            <img
+                                                                id="register_overlay_preview"
+                                                                class="preview-image d-none"
+                                                                alt="Register Overlay Background"
+                                                            >
+
+                                                            <!-- Overlay controls (hidden until image shows) -->
                                                             <div class="image-overlay d-none" id="register_overlay_controls">
-                                                                <button type="button" class="btn btn-sm btn-light me-2"
-                                                                    onclick="event.stopPropagation(); document.getElementById('register_overlay_image').click()">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm btn-light me-2"
+                                                                    onclick="event.stopPropagation(); document.getElementById('register_background_image').click()"
+                                                                >
                                                                     <i class="fas fa-edit"></i> Change
                                                                 </button>
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                    onclick="event.stopPropagation(); removeImage('register_overlay_image', 'register_overlay_preview')">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm btn-danger"
+                                                                    onclick="event.stopPropagation(); removeImage('register_background_image', 'register_overlay_preview')"
+                                                                >
                                                                     <i class="fas fa-trash"></i> Remove
                                                                 </button>
                                                             </div>
@@ -1001,30 +1016,25 @@ function previewImage(input, previewId) {
     const file = input.files[0];
     const preview = document.getElementById(previewId);
 
-    // derive overlay id (supports _controls)
-    let base = previewId.replace("preview", "overlay");
-    const overlay =
-        document.getElementById(base) ||
-        document.getElementById(base + "_controls");
+    // handle overlay controls too
+    let overlayId = previewId.replace("preview", "overlay_controls");
+    const overlay = document.getElementById(overlayId);
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
             preview.src = e.target.result;
-            preview.classList.remove("d-none"); // show <img>
+            preview.classList.remove("d-none");
 
             if (overlay) {
                 overlay.classList.remove("d-none");
             }
 
-            // ✅ hide placeholder when image is uploaded
             const area = preview.closest(".upload-area");
             if (area) {
-                const placeholder = area.querySelector(".upload-placeholder");
-                if (placeholder) {
-                    placeholder.style.display = "none";
-                }
                 area.classList.add("has-image");
+                const placeholder = area.querySelector(".upload-placeholder");
+                if (placeholder) placeholder.style.display = "none";
             }
         };
         reader.readAsDataURL(file);
@@ -1034,40 +1044,33 @@ function previewImage(input, previewId) {
 
 
 
+
 function removeImage(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
+    const overlay = document.getElementById('overlay_' + previewId.split('_')[1]);
+    const uploadArea = document.getElementById('upload_area_' + previewId.split('_')[1]);
 
-    // Clear input value
-    if (input) input.value = "";
+    // Clear input
+    input.value = "";
 
-    // Hide preview image
-    if (preview) {
-        preview.src = "";
-        preview.classList.add("d-none");
-    }
+    // Hide preview
+    preview.src = "";
+    preview.classList.add("d-none");
 
-    // Find overlay container (works for normal and _controls IDs)
-    let base = previewId.replace("preview", "overlay");
-    const overlay =
-        document.getElementById(base) ||
-        document.getElementById(base + "_controls");
+    // Hide overlay
     if (overlay) overlay.classList.add("d-none");
 
     // ✅ Show placeholder back
-    const uploadArea = preview ? preview.closest(".upload-area") : null;
-    if (uploadArea) {
-        const placeholder = uploadArea.querySelector(".upload-placeholder");
-        if (placeholder) {
-            placeholder.style.display = "block";
-        }
+    const placeholder = uploadArea.querySelector(".upload-placeholder");
+    if (placeholder) {
+        placeholder.style.display = "block";   // make it visible again
     }
 
-    // ✅ Mark for deletion if hidden delete flag exists
+    // ✅ Also mark for deletion if you added hidden checkboxes
     const removeCheckbox = document.getElementById("remove_" + inputId);
     if (removeCheckbox) removeCheckbox.checked = true;
 }
-
 
 // Show alert/toast when image background is selected
 function showImageRequiredAlert(prefix) {
