@@ -827,7 +827,7 @@
             color: var(--primary-color); /* Changes text color on hover */
         }
 
-        .image-upload-container {
+        image-upload-container {
             cursor: pointer;
         }
 
@@ -1253,86 +1253,6 @@
         opacity: 1;
     }
 
-    /* Register overlay upload area */
-    #register_overlay_upload_area {
-        position: relative;
-        width: 100%;
-        height: 300px;
-        border: 2px dashed var(--primary-color);
-        border-radius: 8px;
-        overflow: hidden;
-        background-color: #f8f9fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Register overlay preview image */
-    #register_overlay_preview {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 6px;
-        z-index: 2;
-    }
-    
-    /* Register overlay controls */
-    #register_overlay_controls {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 3;
-    }
-    
-    /* Show controls on hover */
-    #register_overlay_upload_area:hover #register_overlay_controls {
-        opacity: 1;
-    }
-    
-    /* Hide placeholder when image is shown */
-    #register_overlay_upload_area.has-image .upload-placeholder {
-        display: none !important;
-    }
-    
-    /* Show placeholder when no image */
-    #register_overlay_upload_area:not(.has-image) .upload-placeholder {
-        display: block;
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* Ensure preview image is hidden by default */
-    #register_overlay_preview.d-none {
-        display: none !important;
-    }
-    
-    /* Ensure controls are hidden by default */
-    #register_overlay_controls.d-none {
-        display: none !important;
-    }
-    
-    /* Override any conflicting styles */
-    #register_overlay_upload_area .preview-image {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        z-index: 2 !important;
-    }
-        
     /* Shop Toggle Switch Styles */
     .shop-toggle-container {
         display: flex;
