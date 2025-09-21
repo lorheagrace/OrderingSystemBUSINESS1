@@ -964,27 +964,13 @@
         opacity: 1 !important;
     }
 
-    /* Sticky Image column (works for both single + variation rows) */
     .table th:first-child,
     .table td:first-child {
         position: sticky;
         left: 0;
-        z-index: 3; /* sits above other cells */
-        background-color: #f0f0f0 !important;
-    }
-    
-    /* Prevent overlap for variation rows (non-rowspan) */
-    .table td:first-child:not([rowspan]) {
-        background-color: transparent !important;
-        z-index: 1;
-    }
-    
-    /* Sticky header row */
-    .table thead th {
-        position: sticky;
-        top: 0;
-        z-index: 4;
-        background-color: #f0f0f0 !important;
+        background-color: inherit; /* follow the row’s background */
+        opacity: 1; /* ensure fully opaque */
+        z-index: 2;
     }
 
         
