@@ -961,29 +961,22 @@
         
     .table td,
     .table th {
-        background-color: #f0f0f0 !important;
         opacity: 1 !important;
     }
 
-    /* Make the first two columns sticky */
-    .table th:nth-child(1),
-    .table td:nth-child(1) {
+    /* Make first column sticky */
+    .table th:first-child,
+    .table td:first-child {
         position: sticky;
         left: 0;
-        z-index: 2;
-        background-color: #f0f0f0; /* match table bg */
+        z-index: 2; /* keeps it above other cells */
+        background-color: #f0f0f0 !important; /* match your table background */
     }
     
-    .table th:nth-child(2),
-    .table td:nth-child(2) {
-        position: sticky;
-        left: 80px; /* width of first column */
-        z-index: 2;
-        background-color: #f0f0f0; /* match table bg */
-    }
-    
-    /* Ensure header row stays above */
+    /* Keep the table header (all columns) sticky at the top */
     .table thead th {
+        position: sticky;
+        top: 0;
         z-index: 3;
     }
         
