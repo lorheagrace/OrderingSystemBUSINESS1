@@ -965,7 +965,28 @@
         opacity: 1 !important;
     }
 
+    /* Make the first two columns sticky */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: #f0f0f0; /* match table bg */
+    }
     
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        position: sticky;
+        left: 80px; /* width of first column */
+        z-index: 2;
+        background-color: #f0f0f0; /* match table bg */
+    }
+    
+    /* Ensure header row stays above */
+    .table thead th {
+        z-index: 3;
+    }
+        
     </style>
 <div>
     <div class="container-fluid">
