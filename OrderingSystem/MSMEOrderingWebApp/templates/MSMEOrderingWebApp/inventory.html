@@ -964,20 +964,28 @@
         opacity: 1 !important;
     }
 
-    /* Make first column sticky */
+    /* Sticky Image column */
     .table th:first-child,
-    .table td:first-child {
+    .table td:first-child[rowspan] {
         position: sticky;
         left: 0;
-        z-index: 2; /* keeps it above other cells */
-        background-color: #f0f0f0 !important; /* match your table background */
+        z-index: 3; /* higher so it sits above variation cells */
+        background-color: #f0f0f0 !important;
     }
     
-    /* Keep the table header (all columns) sticky at the top */
+    /* Variation rows in same group */
+    .table td:first-child:not([rowspan]) {
+        position: relative; /* prevents overlap issues */
+        left: 0;
+        z-index: 1;
+        background-color: transparent !important; /* no duplicate background */
+    }
+    
+    /* Keep header sticky */
     .table thead th {
         position: sticky;
         top: 0;
-        z-index: 3;
+        z-index: 4;
     }
         
     </style>
